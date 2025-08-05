@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.0.43-debian
+    container_name: board-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: board
+      MYSQL_USER: board-user
+      MYSQL_PASSWORD: user1234!
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/mysql/init:/docker-entrypoint-initdb.d
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

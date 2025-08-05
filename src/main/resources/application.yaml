@@ -1,0 +1,21 @@
+spring:
+  application.name: high-traffic-board
+
+  datasource:
+    hikari:
+      jdbc-url: jdbc:mysql://localhost:3306/board
+      username: board-user
+      password: user1234!
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+
+
