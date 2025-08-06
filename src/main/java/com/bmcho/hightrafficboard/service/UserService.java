@@ -1,39 +1,52 @@
 package com.bmcho.hightrafficboard.service;
 
-import com.bmcho.hightrafficboard.dto.CreateUserDto;
+import com.bmcho.hightrafficboard.domain.UserDomain;
+import com.bmcho.hightrafficboard.controller.user.dto.CreateUserRequest;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UserEntity createUser(CreateUserDto userDto) {
-        UserEntity user = new UserEntity(userDto.getUsername(), userDto.getPassword(), userDto.getEmail());
+    public UserEntity createUser(CreateUserRequest userDto) {
+        UserEntity user = new UserEntity(
+            userDto.getUsername(),
+            passwordEncoder.encode(userDto.getPassword()),
+            userDto.getEmail()
+        );
         return userRepository.save(user);
     }
 
     @Transactional
-    public UserEntity updateUser(Long id, String username, String email) {
+    public UserEntity updateUser(long id, String username, String email) {
         UserEntity user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found"));
         return user;
     }
 
-    public Optional<UserEntity> getUser(Long id) {
-        return userRepository.findById(id);
+    public UserDomain getUserById(long id) {
+        return UserDomain.fromEntity(
+            userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("임시 처방")));
+    }
+
+    public UserDomain getUserByEmail(String email) {
+        return UserDomain.fromEntity(
+            userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("임시 처방")));
     }
 
     @Transactional
-    public void deleteUser(Long id) {
+    public void deleteUser(long id) {
         userRepository.deleteById(id);
     }
 

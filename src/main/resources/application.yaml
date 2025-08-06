@@ -16,6 +16,54 @@ spring:
       hibernate:
         format_sql: true
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
 
 
-
+jwt:
+  private-key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCsyeaIac0duBgz
+    s0U3zAPWjvM9EnHRg2Yzq06TzGVCydaBTcEFXZNB1xuCQYGpndDsVDCrYkNlkttl
+    nZ2nttSMlxjSDSDHZ7k8gQMtMOUWISn7mJJ1/n7x4dtsvzz5fQrQco6THzIRUfWo
+    vpc+YawQLRtQs1EsXvOoCMNZj5vtZwQpbNERU6Ipf6/yM9jiZSnkqQd1eyOBHlho
+    CRg3dJu9iJT3P14+L9jEylaqtQrec/rN+ycoyVtHKoM7KUPQmr5IOtS/VChpIx00
+    e3NhByFaBFDIe39Rtk/RwGKozTQ8MR4b0w3xfqEwpgugb87MsXabaYk4Nbrwfl0W
+    +qrEPemyAgMBAAECggEBAJmTyM5BP5KXE8WxdyodcfLzXZgjNbaKkG5ZmqcMvJQy
+    XHyCjRlgq+4KoTkwF5HRpUHyxqTC8b9pWCFmyC9vc1wvFgOXrrJjdyj8Uy9m7US7
+    lg0Z2alKWhYmfZ4rHxwOUVEn5yCNkNdzpmDNcMsVaF9kFlQLs5sE0XcTTuM2Awkp
+    aGJNk+7T8ufPaQGgXm50Zqa5cPvP64y/sCwJOGz4XZ5HhQaDgSRuhUGCqBBrGiDo
+    1KXYdu3/8RaG42+cKUS0IRbnXKXy1G3MnHY6c/5CVkZdpR1dkTz3tWOsLz8cz99X
+    hrmQoKE3E1U9iyJdTqv+Om3j1ApkObZSvFZ2BeROZeECgYEA2t+cxMJvDJW7Htcd
+    3LoJBFsA2RPQfM84qKoWkJv1zpWEnJzUl8Hn1vMsNARmJReu+wIX6LTLNvbxBRPo
+    i0VCv4jAh+wR5RJ5VmLRxoiFb9rXUuWdt5RWnqbBJ9sv5sn37eTzZAlCR3XAIhUg
+    Er5n4hGPJrxkaYazCRQwBWIXw4sCgYEAzqxuKj3v6gRXF1xBq5BaB1FzXE9ti08r
+    q/MJWcyRt1j7PKreM7cHAg8VRce0du2VWaVrjOx3Am4XakLRS3U9LtN3pDkSgGz5
+    GH19/NK0zpCka3rR7gOki+xVprLgAe9IfkaOfnl4qg6Yym5bntVjA3IhLViYmDfr
+    H7niGP0tuQ8CgYBExav9XJLzFT5ZaYoElNz+KKNQ1y20z0W+5xwdnL4H+qKDkWxu
+    Dct+fWXW7qC9WL5SKEkOrQ2Fmh30Bg+YH9Lqkkt+YVxnAwlp6s1f7nmnC3t+Fb6s
+    SlMXKQqqhcdCFh7HZCB6lwQ5TC5L06gYlBJ8yIQOgWwSAvtMY+HquQH8NQKBgF5T
+    Vpl5+q0AmEmYKgtFxBuUv/mD6kPOQ4UmsbQXk5uXrGvOrzB9VCH7I2xokOYXR3pU
+    9SzUslXCDYUJwH0fZ2KH7iZcbw34vK/Y6oPvqxv8PhJpcFv4zfjYP3uk2+eMHGNO
+    JYgGV0AFdC5RmV9HuOP2upvdzk3QJFLRECDg+5ORAoGBAMQ6Z3QFvMiy7Xyr84k1
+    EHF1ZFH7RYAcPvDraFbEyUm5AbRO/A+rJw3wRUFiAcBBlNvY7SgE7PR22lPlGEJo
+    FEyC/VmFljs+ja4k+i3M94YVLOKCyvwUMgc+E8nL9XgA0N8nOdN7+rcyGoAyyYiE
+    WvHuHUmKDzTI1xZ0XZ4kMEv2
+    -----END PRIVATE KEY-----
+  public-key: |
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArMnmyGnsHbgYM7NFN8wD
+    1o7zPRJx0QNmM6tOk0xlQsnWgU3BBV2TQdcbgkGBqZ3Q7FQwq2JDZZLZZ2dp7bUj
+    JcY0g0gx2e5PIEDLTDLs1iEp+5iSdf5+8eHbbL8s+X0K0HKOkx8yEVH1qL6XPmGs
+    EC0bULNRLF7zqAjDWY+b7WcEKWzREVOiKX+v8jPY4mUp5KkHdXsjgR5YaAkYN3Sb
+    vYiU9z9ePi/YxMpWrLUK3nP6zfsnKMlbRyqjOylD0Jq+SDrUv1QoKSMdNHtzYQch
+    WgRTSHt/UbZP0cBiqNc0PDEeG9MN8X6hMKcLoG/OzLF2m2YkODW68H5dFvqqxD3p
+    mQIDAQAB
+    -----END PUBLIC KEY-----
+  expire:
+    access-token: 1  # 시간 단위
+    refresh-token: 12

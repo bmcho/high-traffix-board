@@ -1,9 +1,9 @@
-package com.bmcho.hightrafficboard.dto;
+package com.bmcho.hightrafficboard.controller.user.dto;
 
 import lombok.Data;
 
 @Data
-public class CreateUserDto {
+public class CreateUserRequest {
     private String password;
     private String username;
     private String email;
