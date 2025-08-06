@@ -24,9 +24,19 @@ repositories {
 }
 
 dependencies {
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:_'
+
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt-api:_'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:_'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:_'
+
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
