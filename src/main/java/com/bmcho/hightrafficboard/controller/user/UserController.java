@@ -1,12 +1,14 @@
 
 package com.bmcho.hightrafficboard.controller.user;
 
-import com.bmcho.hightrafficboard.config.filter.JwtTokenProvider;
+import com.bmcho.hightrafficboard.anntation.PasswordEncryption;
 import com.bmcho.hightrafficboard.config.security.BoardUser;
+import com.bmcho.hightrafficboard.controller.BoardApiResponse;
 import com.bmcho.hightrafficboard.controller.user.dto.CreateUserRequest;
 import com.bmcho.hightrafficboard.controller.user.dto.LoginUserRequest;
 import com.bmcho.hightrafficboard.controller.user.dto.UserResponse;
 import com.bmcho.hightrafficboard.entity.UserEntity;
+import com.bmcho.hightrafficboard.service.TokenService;
 import com.bmcho.hightrafficboard.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +26,10 @@ public class UserController {
 
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final TokenService tokenService;
 
     @PostMapping("sign-in")
-    public ResponseEntity<String> loginUser(@RequestBody LoginUserRequest loginUserRequest) {
+    public BoardApiResponse<String> loginUser(@RequestBody LoginUserRequest loginUserRequest) {
         String email = loginUserRequest.getEmail();
         String password = loginUserRequest.getPassword();
 
@@ -35,23 +37,23 @@ public class UserController {
 
         Authentication authentication = authenticationManager.authenticate(token);
         BoardUser user = (BoardUser) authentication.getPrincipal();
-        String accessToken = jwtTokenProvider.generatedToken(user.getId());
+        String accessToken = tokenService.generatedToken(user.getId());
 
-        return ResponseEntity.status(HttpStatus.OK).body(accessToken);
+        return BoardApiResponse.ok(accessToken);
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest userDto) {
+    public BoardApiResponse<UserResponse> createUser(@RequestBody CreateUserRequest userDto) {
         UserEntity createdUser = userService.createUser(userDto);
         UserResponse response = UserResponse.from(createdUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return BoardApiResponse.ok(response);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> createUser(
+    public BoardApiResponse<Void> createUser(
         @Parameter(description = "ID of the user to be deleted", required = true)
         @PathVariable long userId) {
         userService.deleteUser(userId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return BoardApiResponse.ok(null);
     }
 }
