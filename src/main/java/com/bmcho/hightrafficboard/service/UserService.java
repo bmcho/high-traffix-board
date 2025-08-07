@@ -1,12 +1,11 @@
 package com.bmcho.hightrafficboard.service;
 
-import com.bmcho.hightrafficboard.domain.UserDomain;
 import com.bmcho.hightrafficboard.controller.user.dto.CreateUserRequest;
+import com.bmcho.hightrafficboard.domain.UserDomain;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,13 +13,12 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserEntity createUser(CreateUserRequest userDto) {
         UserEntity user = new UserEntity(
             userDto.getUsername(),
-            passwordEncoder.encode(userDto.getPassword()),
+            userDto.getPassword(),
             userDto.getEmail()
         );
         return userRepository.save(user);
@@ -28,9 +26,8 @@ public class UserService {
 
     @Transactional
     public UserEntity updateUser(long id, String username, String email) {
-        UserEntity user = userRepository.findById(id)
+        return userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User not found"));
-        return user;
     }
 
     public UserDomain getUserById(long id) {

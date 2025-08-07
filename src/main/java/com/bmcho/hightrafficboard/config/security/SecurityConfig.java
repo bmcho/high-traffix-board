@@ -30,6 +30,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
             .csrf(AbstractHttpConfigurer::disable)
@@ -37,8 +42,10 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
             .userDetailsService(boardUserDetailsService)
-            .authorizeHttpRequests(requests ->
-                requests.anyRequest().permitAll())
+            .authorizeHttpRequests(requests -> requests
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api/users/sign-up", "/api/users/sign-in").permitAll()
+                .anyRequest().authenticated()
+            )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
@@ -58,11 +65,5 @@ public class SecurityConfig {
             return config;
         };
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
 
 }

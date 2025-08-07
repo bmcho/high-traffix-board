@@ -23,6 +23,7 @@ public class BoardUserDetailsService implements UserDetailsService {
         return new BoardUser(
             user.getId(),
             user.getUsername(),
+            user.getPassword(),
             user.getEmail(),
             List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );

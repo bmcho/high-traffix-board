@@ -1,5 +1,6 @@
 package com.bmcho.hightrafficboard.config.filter;
 
+import com.bmcho.hightrafficboard.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final TokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -28,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = extractToken(request);
 
-        if (accessToken != null && jwtTokenProvider.validateToken((accessToken))) {
+        if (accessToken != null && tokenService.validateToken((accessToken))) {
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

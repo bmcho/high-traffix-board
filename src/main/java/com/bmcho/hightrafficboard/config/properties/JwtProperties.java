@@ -22,4 +22,20 @@ public class JwtProperties {
         private int accessToken;
         private int refreshToken;
     }
+
+    public String getPrivateKey() {
+        return this.privateKey
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            // 2. 줄바꿈/공백 제거
+            .replaceAll("\\s+", "");
+    }
+
+    public String getPublicKey() {
+        return this.publicKey
+            .replace("-----BEGIN PRIVATE KEY-----", "")
+            .replace("-----END PRIVATE KEY-----", "")
+            // 2. 줄바꿈/공백 제거
+            .replaceAll("\\s+", "");
+    }
 }

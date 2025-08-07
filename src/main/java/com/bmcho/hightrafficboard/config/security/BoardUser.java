@@ -10,17 +10,20 @@ import java.util.Collection;
 public class BoardUser extends User {
     private final long id;
     private final String username;
+    private final String password;
     private final String email;
 
     public BoardUser(
         long id,
         String username,
+        String password,
         String email,
         Collection<? extends GrantedAuthority> authorities
     ) {
-        super(email, null, authorities);
+        super(email, password, authorities);
         this.id = id;
         this.username = username;
+        this.password = password;
         this.email = email;
     }
 
