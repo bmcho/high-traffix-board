@@ -1,5 +1,6 @@
 package com.bmcho.hightrafficboard.config.filter;
 
+import com.bmcho.hightrafficboard.service.JwtBlacklistService;
 import com.bmcho.hightrafficboard.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,8 +20,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Override
     protected void doFilterInternal(
@@ -30,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = extractToken(request);
 
-        if (accessToken != null) {
+        if (accessToken != null && !jwtBlacklistService.isTokenBlacklisted(accessToken)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

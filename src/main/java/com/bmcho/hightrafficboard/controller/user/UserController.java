@@ -7,14 +7,22 @@ import com.bmcho.hightrafficboard.controller.user.dto.CreateUserRequest;
 import com.bmcho.hightrafficboard.controller.user.dto.LoginUserRequest;
 import com.bmcho.hightrafficboard.controller.user.dto.UserResponse;
 import com.bmcho.hightrafficboard.entity.UserEntity;
+import com.bmcho.hightrafficboard.service.JwtBlacklistService;
 import com.bmcho.hightrafficboard.service.TokenService;
 import com.bmcho.hightrafficboard.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.Cookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,9 +32,10 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final TokenService tokenService;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @PostMapping("sign-in")
-    public BoardApiResponse<String> loginUser(@RequestBody LoginUserRequest loginUserRequest) {
+    public BoardApiResponse<String> loginUser(@RequestBody LoginUserRequest loginUserRequest, HttpServletResponse response) {
         String email = loginUserRequest.getEmail();
         String password = loginUserRequest.getPassword();
 
@@ -34,7 +43,13 @@ public class UserController {
 
         Authentication authentication = authenticationManager.authenticate(token);
         BoardUser user = (BoardUser) authentication.getPrincipal();
-        String accessToken = tokenService.generatedAccessToken(user.getId());
+        String accessToken = tokenService.generatedAccessToken(user);
+
+        Cookie cookie = new Cookie("board_token", accessToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60);
+        response.addCookie(cookie);
 
         return BoardApiResponse.ok(accessToken);
     }
@@ -55,10 +70,25 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public BoardApiResponse<Void> logout() {
-        /* TODO: 2025-08-7, 목, 15:53 bmcho12
-         *  로그아웃 처리
-        */
+    public BoardApiResponse<Void> logout(@CookieValue(value = "board_token", required = false) String cookieToken,
+                                         HttpServletRequest request, HttpServletResponse response) {
+
+        String token;
+        if (cookieToken != null) {
+            token = cookieToken;
+        } else {
+            String bearerToken = request.getHeader("Authorization");
+            token = bearerToken.substring(7);
+        }
+
+        jwtBlacklistService.blacklistToken(token);
+        Cookie cookie = new Cookie("board_token", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 쿠키 삭제
+        response.addCookie(cookie);
+
+
         return BoardApiResponse.ok(null);
     }
 }

@@ -1,6 +1,7 @@
 package com.bmcho.hightrafficboard.service;
 
 import com.bmcho.hightrafficboard.config.properties.JwtProperties;
+import com.bmcho.hightrafficboard.config.security.BoardUser;
 import com.bmcho.hightrafficboard.domain.UserDomain;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -70,24 +71,17 @@ public class TokenService {
         }
     }
 
-    public String generatedAccessToken(long id) {
-        Date now = new Date();
-        Instant instant = now.toInstant();
-
-        return Jwts.builder()
-            .claim("id", id)
-            .issuedAt(now)
-            .expiration(Date.from(instant.plus(Duration.ofHours(jwtProperties.getExpire().getAccessToken()))))
-            .signWith(getPrivateKey(), Jwts.SIG.RS256)
-            .compact();
+    public String generatedAccessToken(BoardUser user) {
+        return generatedToken(user, Duration.ofHours(jwtProperties.getExpire().getAccessToken()));
     }
 
-    public String generatedAccessToken(long id, Duration expireAt) {
+    public String generatedToken(BoardUser user, Duration expireAt) {
         Date now = new Date();
         Instant instant = now.toInstant();
 
         return Jwts.builder()
-            .claim("id", id)
+            .claim("id", user.getId())
+            .claim("email", user.getEmail())
             .issuedAt(now)
             .expiration(Date.from(instant.plus(expireAt)))
             .signWith(getPrivateKey(), Jwts.SIG.RS256)
