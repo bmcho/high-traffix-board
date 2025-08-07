@@ -31,7 +31,7 @@ public class JwtTokenProvider {
         UserDomain user = tokenService.getUserByAccessToken(accessToken);
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        UserDetails principal = new User(user.getUsername(), null, authorities);
+        UserDetails principal = new User(user.getUsername(), user.getPassword(), authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, user.getId(), authorities);
     }

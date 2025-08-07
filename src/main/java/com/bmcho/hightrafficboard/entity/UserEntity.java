@@ -3,15 +3,16 @@ package com.bmcho.hightrafficboard.entity;
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-@Getter
+@Data
 @Entity
 @Table(name = "users")
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserEntity extends MutableBaseEntity {
 

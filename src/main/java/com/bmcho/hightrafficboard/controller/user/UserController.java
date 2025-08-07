@@ -1,7 +1,6 @@
 
 package com.bmcho.hightrafficboard.controller.user;
 
-import com.bmcho.hightrafficboard.anntation.PasswordEncryption;
 import com.bmcho.hightrafficboard.config.security.BoardUser;
 import com.bmcho.hightrafficboard.controller.BoardApiResponse;
 import com.bmcho.hightrafficboard.controller.user.dto.CreateUserRequest;
@@ -12,8 +11,6 @@ import com.bmcho.hightrafficboard.service.TokenService;
 import com.bmcho.hightrafficboard.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,7 +34,7 @@ public class UserController {
 
         Authentication authentication = authenticationManager.authenticate(token);
         BoardUser user = (BoardUser) authentication.getPrincipal();
-        String accessToken = tokenService.generatedToken(user.getId());
+        String accessToken = tokenService.generatedAccessToken(user.getId());
 
         return BoardApiResponse.ok(accessToken);
     }
@@ -50,10 +47,18 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public BoardApiResponse<Void> createUser(
+    public BoardApiResponse<Void> deleteUser(
         @Parameter(description = "ID of the user to be deleted", required = true)
         @PathVariable long userId) {
         userService.deleteUser(userId);
+        return BoardApiResponse.ok(null);
+    }
+
+    @PostMapping("/logout")
+    public BoardApiResponse<Void> logout() {
+        /* TODO: 2025-08-7, 목, 15:53 bmcho12
+         *  로그아웃 처리
+        */
         return BoardApiResponse.ok(null);
     }
 }

@@ -33,8 +33,8 @@ public class JwtProperties {
 
     public String getPublicKey() {
         return this.publicKey
-            .replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
+            .replace("-----BEGIN PUBLIC KEY-----", "")
+            .replace("-----END PUBLIC KEY-----", "")
             // 2. 줄바꿈/공백 제거
             .replaceAll("\\s+", "");
     }

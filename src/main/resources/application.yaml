@@ -56,7 +56,7 @@ jwt:
     ibjRd46gQKCIWx3B5yuNjQ==
     -----END PRIVATE KEY-----
 
-public-key: |
+  public-key: |
     -----BEGIN PUBLIC KEY-----
     MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk/Wvwh36b4xjha0jv8xz
     d28Xa3UQ8ajuNMh5FET7C9SfwELpCsXESHIFKkkcg6wApqygV/NTJDgyo4TRjzq+
@@ -66,6 +66,6 @@ public-key: |
     vE/yTrx9XXNEUPL78p5ma8iz1H5pDcqAXPC1A9AU311cltSFYqdxCOvRaBttgU2w
     HwIDAQAB
     -----END PUBLIC KEY-----
-expire:
+  expire:
     access-token: 1  # 시간 단위
     refresh-token: 12

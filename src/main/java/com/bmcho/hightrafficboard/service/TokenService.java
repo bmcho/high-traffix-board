@@ -1,7 +1,6 @@
 package com.bmcho.hightrafficboard.service;
 
 import com.bmcho.hightrafficboard.config.properties.JwtProperties;
-import com.bmcho.hightrafficboard.controller.user.dto.UserResponse;
 import com.bmcho.hightrafficboard.domain.UserDomain;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -34,7 +33,11 @@ public class TokenService {
                 .build()
                 .parseSignedClaims(accessToken);
             return true;
+        } catch (ExpiredJwtException e) {
+            System.out.println("토큰 만료됨: " + e.getMessage());
+            return false;
         } catch (JwtException e) {
+            System.out.println("기타 JWT 오류: " + e.getMessage());
             return false;
         }
     }
@@ -67,7 +70,7 @@ public class TokenService {
         }
     }
 
-    public String generatedToken(long id) {
+    public String generatedAccessToken(long id) {
         Date now = new Date();
         Instant instant = now.toInstant();
 
@@ -79,7 +82,7 @@ public class TokenService {
             .compact();
     }
 
-    public String generatedToken(long id, Duration expireAt) {
+    public String generatedAccessToken(long id, Duration expireAt) {
         Date now = new Date();
         Instant instant = now.toInstant();
 
@@ -91,7 +94,7 @@ public class TokenService {
             .compact();
     }
 
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
         try {
             return Jwts.parser()
                 .verifyWith(getPublicKey())
