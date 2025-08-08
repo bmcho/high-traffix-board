@@ -1,5 +1,6 @@
 package com.bmcho.hightrafficboard.config.filter;
 
+import com.bmcho.hightrafficboard.config.security.BoardUser;
 import com.bmcho.hightrafficboard.domain.UserDomain;
 import com.bmcho.hightrafficboard.service.TokenService;
 import io.jsonwebtoken.JwtException;
@@ -9,8 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public class JwtTokenProvider {
         UserDomain user = tokenService.getUserByAccessToken(accessToken);
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        UserDetails principal = new User(user.getUsername(), user.getPassword(), authorities);
+        BoardUser principal = new BoardUser(user.getId(), user.getUsername(), user.getPassword(), user.getEmail(), authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, user.getId(), authorities);
     }
