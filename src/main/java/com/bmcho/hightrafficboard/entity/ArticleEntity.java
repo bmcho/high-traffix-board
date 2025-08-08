@@ -1,0 +1,44 @@
+package com.bmcho.hightrafficboard.entity;
+
+
+import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@Entity
+@Table(name = "articles")
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ArticleEntity extends MutableBaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Lob
+    @Column(nullable = false)
+    private String content;
+
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private UserEntity author;
+
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private BoardEntity board;
+
+    public ArticleEntity(UserEntity author, BoardEntity board, String title, String content) {
+        this.author = author;
+        this.board = board;
+        this.title = title;
+        this.content = content;
+    }
+
+}

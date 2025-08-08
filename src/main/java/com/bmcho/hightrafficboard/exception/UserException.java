@@ -3,12 +3,10 @@ package com.bmcho.hightrafficboard.exception;
 import lombok.Getter;
 
 @Getter
-public class UserException extends RuntimeException {
-
-    private final ErrorCode code;
+public class UserException extends BasicException {
 
     public UserException(ErrorCode code) {
-        this.code = code;
+        super(code);
     }
 
     public static class UserAlreadyExistException extends UserException {

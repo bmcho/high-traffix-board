@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "JwtBlacklist")
+@Table(name = "jwt_blacklist")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtBlacklistEntity {
 

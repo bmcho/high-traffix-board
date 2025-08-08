@@ -10,7 +10,9 @@ public enum ErrorCode {
     USER_ALREADY_EXIST("CODE2000", "사용자가 이미 존재합니다."),
     USER_DOES_NOT_EXIST("CODE2001", "사용자가 존재하지 않습니다."),
     AUTHENTICATION_FAILED("CODE2002", "인증에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요."),
-    ACCESS_DENIED("CODE2004", "해당 기능에 접근이 제한됩니다.")
+    ACCESS_DENIED("CODE2004", "해당 기능에 접근이 제한됩니다."),
+
+    BOARD_DOES_NOT_EXIST("CODE3001", "게시글이 존재하지 않습니다."),
     ;
 
     private final String code;
