@@ -26,11 +26,14 @@ public class ArticleEntity extends MutableBaseEntity {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private UserEntity author;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private BoardEntity board;
 

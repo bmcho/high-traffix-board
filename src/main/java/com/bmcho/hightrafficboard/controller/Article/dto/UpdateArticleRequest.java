@@ -1,9 +1,10 @@
 package com.bmcho.hightrafficboard.controller.Article.dto;
 
+
 import lombok.Getter;
 
 @Getter
-public class WriteArticleRequest {
+public class UpdateArticleRequest {
     String title;
     String content;
 }

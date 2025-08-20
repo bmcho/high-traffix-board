@@ -15,7 +15,7 @@ public class ArticleResponse {
     private final String contents;
 
     private final UserResponse author;
-    private final BoardResponse board;
+//    private final BoardResponse board;
 
     public static ArticleResponse from(ArticleEntity entity) {
         return ArticleResponse.builder()
@@ -23,7 +23,7 @@ public class ArticleResponse {
             .title(entity.getTitle())
             .contents(entity.getContent())
             .author(UserResponse.from(entity.getAuthor()))
-            .board(BoardResponse.from(entity.getBoard()))
+//            .board(BoardResponse.from(entity.getBoard()))
             .build();
     }
 }

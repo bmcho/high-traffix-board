@@ -1,5 +1,7 @@
 package com.bmcho.hightrafficboard.exception;
 
+import org.springframework.http.HttpStatus;
+
 public class BoardException extends BasicException {
 
     public BoardException(ErrorCode code) {
@@ -8,7 +10,7 @@ public class BoardException extends BasicException {
 
     public static class BoardDoesNotExistException extends BoardException {
         public BoardDoesNotExistException() {
-            super(ErrorCode.USER_DOES_NOT_EXIST);
+            super(ErrorCode.BOARD_DOES_NOT_EXIST);
         }
     }
 }

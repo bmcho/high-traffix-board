@@ -6,10 +6,10 @@ import com.bmcho.hightrafficboard.controller.BoardApiResponse;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.service.ArticleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -19,11 +19,36 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @PostMapping("/{boardId}/articles")
-    public BoardApiResponse<ArticleResponse> writeArticle(@RequestBody WriteArticleRequest writeArticleDto) {
+    public BoardApiResponse<ArticleResponse> writeArticle(@PathVariable("boardId") Long boardId, @RequestBody WriteArticleRequest writeArticleDto) {
 
-        ArticleEntity articleEntity = articleService.writeArticle(writeArticleDto);
+        ArticleEntity articleEntity = articleService.writeArticle(boardId, writeArticleDto);
         ArticleResponse response = ArticleResponse.from(articleEntity);
         return BoardApiResponse.ok(response);
+    }
+
+    @GetMapping("/{boardId}/articles")
+    public BoardApiResponse<List<ArticleResponse>> getArticle(@PathVariable Long boardId,
+                                                              @RequestParam(required = false) Long lastId,
+                                                              @RequestParam(required = false) Long firstId) {
+
+        List<ArticleEntity> articleEntityList;
+
+        if (lastId != null)
+            articleEntityList = articleService.getOldArticle(boardId, lastId);
+        else if (firstId != null)
+            articleEntityList = articleService.getNewArticle(boardId, firstId);
+        else
+            articleEntityList = articleService.firstGetArticle(boardId);
+
+        List<ArticleResponse> response = articleEntityList.stream().map(ArticleResponse::from).toList();
+        return BoardApiResponse.ok(response);
+    }
+
+
+    @DeleteMapping("/{boardId}/articles/{articleId}")
+    public ResponseEntity<String> deleteArticle(@PathVariable Long boardId, @PathVariable Long articleId) {
+        articleService.deleteArticle(boardId, articleId);
+        return ResponseEntity.ok("article is deleted");
     }
 
 }
