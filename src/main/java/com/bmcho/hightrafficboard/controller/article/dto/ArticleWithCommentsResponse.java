@@ -1,9 +1,9 @@
 package com.bmcho.hightrafficboard.controller.article.dto;
 
 
+import com.bmcho.hightrafficboard.controller.comment.dto.CommentResponse;
 import com.bmcho.hightrafficboard.controller.user.dto.UserResponse;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
-import com.bmcho.hightrafficboard.entity.CommentEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,8 +18,7 @@ public class ArticleWithCommentsResponse {
     private final String contents;
 
     private final UserResponse author;
-    private final List<CommentEntity> comments;
-//    private final BoardResponse board;
+    private final List<CommentResponse> comments;
 
     public static ArticleWithCommentsResponse from(ArticleEntity entity) {
         return ArticleWithCommentsResponse.builder()
@@ -27,8 +26,9 @@ public class ArticleWithCommentsResponse {
             .title(entity.getTitle())
             .contents(entity.getContent())
             .author(UserResponse.from(entity.getAuthor()))
-            .comments(entity.getComments())
-//            .board(BoardResponse.from(entity.getBoard()))
+            .comments(entity.getComments()
+                .stream().map(CommentResponse::from).toList()
+            )
             .build();
     }
 }
