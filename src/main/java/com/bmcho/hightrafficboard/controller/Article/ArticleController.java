@@ -1,6 +1,7 @@
 package com.bmcho.hightrafficboard.controller.Article;
 
 import com.bmcho.hightrafficboard.controller.Article.dto.ArticleResponse;
+import com.bmcho.hightrafficboard.controller.Article.dto.UpdateArticleRequest;
 import com.bmcho.hightrafficboard.controller.Article.dto.WriteArticleRequest;
 import com.bmcho.hightrafficboard.controller.BoardApiResponse;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
@@ -45,10 +46,17 @@ public class ArticleController {
     }
 
 
+    @PutMapping("/{boardId}/articles/{articleId}")
+    public BoardApiResponse<ArticleResponse> updateArticle(@PathVariable Long boardId, @PathVariable Long articleId, @RequestBody UpdateArticleRequest dto) {
+        ArticleEntity articleEntity = articleService.updateArticle(boardId, articleId, dto);
+        ArticleResponse response = ArticleResponse.from(articleEntity);
+        return BoardApiResponse.ok(response);
+    }
+
     @DeleteMapping("/{boardId}/articles/{articleId}")
-    public ResponseEntity<String> deleteArticle(@PathVariable Long boardId, @PathVariable Long articleId) {
+    public BoardApiResponse<String> deleteArticle(@PathVariable Long boardId, @PathVariable Long articleId) {
         articleService.deleteArticle(boardId, articleId);
-        return ResponseEntity.ok("article is deleted");
+        return BoardApiResponse.ok("article is deleted");
     }
 
 }
