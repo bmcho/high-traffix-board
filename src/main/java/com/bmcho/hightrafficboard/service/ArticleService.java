@@ -136,7 +136,7 @@ public class ArticleService {
 
         Duration duration = Duration.between(localDateTime, dateAsLocalDateTime);
 
-        return Math.abs(duration.toMinutes()) > 5;
+        return Math.abs(duration.toMinutes()) > 2;
     }
 
 }

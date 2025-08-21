@@ -16,7 +16,7 @@ public class ArticleException extends BasicException {
 
     public static class ArticleNotEditedByRateLimitException extends ArticleException {
         public ArticleNotEditedByRateLimitException() {
-            super(ErrorCode.ARTICLE_DOES_NOT_EXIST);
+            super(ErrorCode.ARTICLE_NOT_EDITED_BY_RATE_LIMIT);
         }
     }
 
