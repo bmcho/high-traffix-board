@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.awt.print.Pageable;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
@@ -24,9 +25,9 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
                                                                                         @Param("articleId") Long articleId);
 
     @Query("SELECT a FROM ArticleEntity a JOIN a.author u WHERE u.username = :username ORDER BY a.createdAt DESC LIMIT 1")
-    ArticleEntity findLatestArticleByAuthorUsernameOrderByCreatedAt(@Param("username") String username);
+    Optional<ArticleEntity> findLatestArticleByAuthorUsernameOrderByCreatedAt(@Param("username") String username);
 
     @Query("SELECT a FROM ArticleEntity a JOIN a.author u WHERE u.username = :username ORDER BY a.modifiedAt DESC LIMIT 1")
-    ArticleEntity findLatestArticleByAuthorUsernameOrderByModifiedAt(@Param("username") String username);
+    Optional<ArticleEntity> findLatestArticleByAuthorUsernameOrderByModifiedAt(@Param("username") String username);
 
 }

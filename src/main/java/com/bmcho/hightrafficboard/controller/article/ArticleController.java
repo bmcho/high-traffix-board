@@ -1,16 +1,19 @@
-package com.bmcho.hightrafficboard.controller.Article;
+package com.bmcho.hightrafficboard.controller.article;
 
-import com.bmcho.hightrafficboard.controller.Article.dto.ArticleResponse;
-import com.bmcho.hightrafficboard.controller.Article.dto.UpdateArticleRequest;
-import com.bmcho.hightrafficboard.controller.Article.dto.WriteArticleRequest;
+import com.bmcho.hightrafficboard.controller.article.dto.ArticleResponse;
+import com.bmcho.hightrafficboard.controller.article.dto.ArticleWithCommentsResponse;
+import com.bmcho.hightrafficboard.controller.article.dto.UpdateArticleRequest;
+import com.bmcho.hightrafficboard.controller.article.dto.WriteArticleRequest;
 import com.bmcho.hightrafficboard.controller.BoardApiResponse;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.service.ArticleService;
+import com.bmcho.hightrafficboard.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -45,6 +48,15 @@ public class ArticleController {
         return BoardApiResponse.ok(response);
     }
 
+    @GetMapping("/{boardId}/articles/{articleId}")
+    public BoardApiResponse<ArticleWithCommentsResponse> getArticleWithComment(@PathVariable Long boardId, @PathVariable Long articleId) {
+        CompletableFuture<ArticleEntity> articleEntityFuture = articleService.getArticleWithComment(boardId, articleId);
+        ArticleEntity articleEntity = articleEntityFuture.getNow(null);
+        if (articleEntity == null)
+            return BoardApiResponse.ok(null);
+        else
+            return BoardApiResponse.ok(ArticleWithCommentsResponse.from(articleEntity));
+    }
 
     @PutMapping("/{boardId}/articles/{articleId}")
     public BoardApiResponse<ArticleResponse> updateArticle(@PathVariable Long boardId, @PathVariable Long articleId, @RequestBody UpdateArticleRequest dto) {

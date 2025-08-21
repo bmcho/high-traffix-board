@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "articles")
@@ -37,11 +40,16 @@ public class ArticleEntity extends MutableBaseEntity {
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private BoardEntity board;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private List<CommentEntity> comments = new ArrayList<>();
+
     public ArticleEntity(UserEntity author, BoardEntity board, String title, String content) {
         this.author = author;
         this.board = board;
         this.title = title;
         this.content = content;
+        this.comments = null;
     }
 
 }

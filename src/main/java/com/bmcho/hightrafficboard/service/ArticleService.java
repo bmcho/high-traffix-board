@@ -1,22 +1,26 @@
 package com.bmcho.hightrafficboard.service;
 
 import com.bmcho.hightrafficboard.config.security.BoardUser;
-import com.bmcho.hightrafficboard.controller.Article.dto.UpdateArticleRequest;
-import com.bmcho.hightrafficboard.controller.Article.dto.WriteArticleRequest;
+import com.bmcho.hightrafficboard.controller.article.dto.UpdateArticleRequest;
+import com.bmcho.hightrafficboard.controller.article.dto.WriteArticleRequest;
+import com.bmcho.hightrafficboard.controller.comment.dto.CommentResponse;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.entity.BoardEntity;
+import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.exception.BoardException;
 import com.bmcho.hightrafficboard.exception.UserException;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.repository.BoardRepository;
+import com.bmcho.hightrafficboard.repository.CommentRepository;
 import com.bmcho.hightrafficboard.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -24,15 +28,51 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+
+    @Async
+    protected CompletableFuture<ArticleEntity> getArticle(Long boardId, Long articleId) {
+        BoardEntity board = boardRepository.findById(boardId)
+            .orElseThrow(BoardException.BoardDoesNotExistException::new);
+        ArticleEntity article = articleRepository.findById(articleId)
+            .filter(entity -> !entity.getIsDeleted())
+            .orElseThrow(ArticleException.ArticleDoesNotExistException::new);
+        return CompletableFuture.completedFuture(article);
+    }
+
+    @Async
+    protected CompletableFuture<List<CommentEntity>> getComments(Long articleId) {
+        return CompletableFuture.completedFuture(commentRepository.findByArticleId(articleId));
+    }
+
+    public CompletableFuture<ArticleEntity> getArticleWithComment(Long boardId, Long articleId) {
+        CompletableFuture<ArticleEntity> articleFuture = this.getArticle(boardId, articleId);
+        CompletableFuture<List<CommentEntity>> commentsFuture = this.getComments(articleId);
+
+        return CompletableFuture.allOf(articleFuture, commentsFuture)
+            .thenApply(result -> {
+                try {
+                    ArticleEntity article = articleFuture.get();
+                    List<CommentEntity> comments = commentsFuture.get();
+                    article.setComments(comments);
+                    return article;
+                } catch (InterruptedException | ExecutionException e) {
+                    log.error("[CommentService.getArticleWithComment] cause: {}", e.getMessage());
+                    return null;
+                }
+            });
+    }
 
     public List<ArticleEntity> firstGetArticle(Long boardId) {
         return articleRepository.findTop10ByBoardIdOrderByCreatedAtDesc(boardId);
@@ -48,9 +88,12 @@ public class ArticleService {
 
     @Transactional
     public ArticleEntity writeArticle(Long boardId, WriteArticleRequest dto) {
-        // filter 에서 검증된 유저, 예외처리 x
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         BoardUser boardUser = (BoardUser) authentication.getPrincipal();
+
+        if (!isCanWriteArticle(boardUser.getUsername())) {
+            throw new ArticleException.ArticleNotEditedByRateLimitException();
+        }
 
         UserEntity author = userRepository.findById(boardUser.getId())
             .orElseThrow(UserException.UserDoesNotExistException::new);
@@ -72,7 +115,7 @@ public class ArticleService {
     public ArticleEntity updateArticle(Long boardId, Long articleId, UpdateArticleRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         BoardUser boardUser = (BoardUser) authentication.getPrincipal();
-        ArticleEntity article = validateArticleAccess(boardId, articleId, boardUser.getUsername());
+        ArticleEntity article = validateUpdateArticleAccess(boardId, articleId, boardUser.getUsername());
 
         if (dto.getTitle() != null) {
             article.setTitle(dto.getTitle());
@@ -90,14 +133,18 @@ public class ArticleService {
     public boolean deleteArticle(Long boardId, Long articleId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         BoardUser boardUser = (BoardUser) authentication.getPrincipal();
-        ArticleEntity article = validateArticleAccess(boardId, articleId, boardUser.getUsername());
+        ArticleEntity article = validateUpdateArticleAccess(boardId, articleId, boardUser.getUsername());
 
         article.setIsDeleted(true);
         articleRepository.save(article);
         return true;
     }
 
-    private ArticleEntity validateArticleAccess(Long boardId, Long articleId, String username) {
+    private ArticleEntity validateUpdateArticleAccess(Long boardId, Long articleId, String username) {
+
+        if (!this.isCanUpdateArticle(username)) {
+            throw new ArticleException.ArticleNotEditedByRateLimitException();
+        }
 
         UserEntity author = userRepository.findByUsername(username)
             .orElseThrow(UserException.UserDoesNotExistException::new);
@@ -112,20 +159,20 @@ public class ArticleService {
             throw new ArticleException.ArticleAuthorDifferentException();
         }
 
-        if (!this.isCanUpdateArticle(username)) {
-            throw new ArticleException.ArticleNotEditedByRateLimitException();
-        }
-
         return article;
     }
 
     private boolean isCanWriteArticle(String username) {
-        ArticleEntity latestArticle = articleRepository.findLatestArticleByAuthorUsernameOrderByCreatedAt(username);
+        ArticleEntity latestArticle = articleRepository.findLatestArticleByAuthorUsernameOrderByCreatedAt(username)
+            .orElse(null);
+        if (latestArticle == null) return true;
         return this.isDifferenceMoreThanFiveMinutes(latestArticle.getCreatedAt());
     }
 
     private boolean isCanUpdateArticle(String username) {
-        ArticleEntity latestArticle = articleRepository.findLatestArticleByAuthorUsernameOrderByModifiedAt(username);
+        ArticleEntity latestArticle = articleRepository.findLatestArticleByAuthorUsernameOrderByModifiedAt(username)
+            .orElse(null);
+        if (latestArticle == null) return true;
         return this.isDifferenceMoreThanFiveMinutes(latestArticle.getModifiedAt());
     }
 

@@ -37,6 +37,9 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:_'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:_'
 
+    //hikari connection pool
+    implementation("com.zaxxer:HikariCP:5.0.1")
+
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'

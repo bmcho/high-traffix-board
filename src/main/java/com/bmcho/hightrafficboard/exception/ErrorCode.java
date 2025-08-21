@@ -18,7 +18,7 @@ public enum ErrorCode {
     BOARD_DOES_NOT_EXIST("CODE3001", "게시판이 존재하지 않습니다.", HttpStatus.NOT_FOUND), // 404
 
     ARTICLE_DOES_NOT_EXIST("CODE4001", "게시글이 존재하지 않습니다.", HttpStatus.NOT_FOUND), // 404
-    ARTICLE_NOT_EDITED_BY_RATE_LIMIT("CODE4002", "수정 요청이 너무 잦아 잠시 후 다시 시도해주세요.", HttpStatus.TOO_MANY_REQUESTS), // 429
+    ARTICLE_NOT_EDITED_BY_RATE_LIMIT("CODE4002", "요청이 너무 잦아 잠시 후 다시 시도해주세요.", HttpStatus.FORBIDDEN),
     ARTICLE_AUTHOR_DIFFERENT("CODE4002", "작성자가 아닙니다.", HttpStatus.FORBIDDEN), // 429
     ;
 

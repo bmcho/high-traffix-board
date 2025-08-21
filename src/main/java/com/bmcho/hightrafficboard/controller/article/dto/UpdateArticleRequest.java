@@ -1,4 +1,4 @@
-package com.bmcho.hightrafficboard.controller.Article.dto;
+package com.bmcho.hightrafficboard.controller.article.dto;
 
 
 import lombok.Getter;
