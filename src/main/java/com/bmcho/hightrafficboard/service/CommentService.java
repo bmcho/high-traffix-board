@@ -1,89 +1,120 @@
 package com.bmcho.hightrafficboard.service;
 
-import com.bmcho.hightrafficboard.config.security.BoardUser;
 import com.bmcho.hightrafficboard.controller.comment.dto.WriteCommentRequest;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
-import com.bmcho.hightrafficboard.entity.BoardEntity;
 import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.entity.UserEntity;
+import com.bmcho.hightrafficboard.entity.audit.BaseEntity;
+import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
 import com.bmcho.hightrafficboard.exception.ArticleException;
-import com.bmcho.hightrafficboard.exception.BoardException;
-import com.bmcho.hightrafficboard.exception.UserException;
-import com.bmcho.hightrafficboard.repository.ArticleRepository;
-import com.bmcho.hightrafficboard.repository.BoardRepository;
+import com.bmcho.hightrafficboard.exception.CommentException;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
-import com.bmcho.hightrafficboard.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
-    private final BoardRepository boardRepository;
-    private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
+
+    private final ArticleService articleService;
+    private final BoardService boardService;
+    private final UserService userService;
+
+    public CommentEntity getComment(Long commentId) {
+        return commentRepository.findById(commentId)
+            .filter(c -> !c.getIsDeleted())
+            .orElseThrow(CommentException.CommentDoesNotExistException::new);
+    }
 
     @Transactional
     public CommentEntity writeComment(Long boardId, Long articleId, WriteCommentRequest dto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        BoardUser boardUser = (BoardUser) authentication.getPrincipal();
+        UserEntity author = userService.getCurrentUser();
+        boardService.getBoard(boardId);
+        ArticleEntity article = articleService.getArticle(articleId);
 
-        if (!this.isCanWriteComment(boardUser.getUsername())) {
+        if (!isCommentWritable(author.getUsername())) {
+            throw new CommentException.CommentNotEditedByRateLimitException();
+        }
+
+        CommentEntity comment = new CommentEntity(dto.getContent(), author, article);
+        return commentRepository.save(comment);
+    }
+
+    @Transactional
+    public CommentEntity updateComment(Long boardId, Long articleId, Long commentId, WriteCommentRequest dto) {
+        UserEntity author = userService.getCurrentUser();
+        boardService.getBoard(boardId);
+        articleService.getArticle(articleId);
+        CommentEntity comment = getComment(commentId);
+
+        if (!isCommentWritable(author.getUsername())) {
+            throw new CommentException.CommentNotEditedByRateLimitException();
+        }
+
+        if (!comment.getAuthor().equals(author)) {
+            throw new CommentException.CommentAuthorDifferentException();
+        }
+
+        if (dto.getContent() != null) {
+            comment.setContent(dto.getContent());
+        }
+
+        return commentRepository.save(comment);
+    }
+
+    @Transactional
+    public boolean deleteComment(Long boardId, Long articleId, Long commentId) {
+        UserEntity author = userService.getCurrentUser();
+        boardService.getBoard(boardId);
+        articleService.getArticle(articleId);
+        CommentEntity comment = getComment(commentId);
+
+        if (!isCommentWritable(author.getUsername())) {
             throw new ArticleException.ArticleNotEditedByRateLimitException();
         }
 
-        UserEntity author = userRepository.findByUsername(boardUser.getUsername())
-            .orElseThrow(UserException.UserDoesNotExistException::new);
-        BoardEntity board = boardRepository.findById(boardId)
-            .orElseThrow(BoardException.BoardDoesNotExistException::new);
-        ArticleEntity article = articleRepository.findById(articleId)
-            .filter(a -> !a.getIsDeleted())
-            .orElseThrow(ArticleException.ArticleDoesNotExistException::new);
+        if (!comment.getAuthor().equals(author)) {
+            throw new CommentException.CommentAuthorDifferentException();
+        }
 
-        CommentEntity comment = new CommentEntity(
-            dto.getContent(),
-            author,
-            article
-        );
+        comment.setIsDeleted(true);
         commentRepository.save(comment);
-        return comment;
+        return true;
     }
 
-    private boolean isCanWriteComment(String username) {
-        CommentEntity latestComment = commentRepository.findLatestCommentOrderByCreatedDate(username);
-        if (latestComment == null) {
-            return true;
-        }
-        return this.isDifferenceMoreThanOneMinutes(latestComment.getCreatedAt());
+    private boolean isCommentWritable(String username) {
+        LocalDateTime latest = Stream.of(
+                commentRepository.findLatestCommentOrderByCreatedDate(username)
+                    .map(BaseEntity::getCreatedAt)
+                    .orElse(null),
+                commentRepository.findLatestCommentOrderByModifiedDate(username)
+                    .map(MutableBaseEntity::getModifiedAt)
+                    .orElse(null)
+            )
+            .filter(Objects::nonNull)
+            .max(LocalDateTime::compareTo)
+            .orElse(null);
+
+        return latest == null || isDifferenceMoreThanOneMinute(latest);
     }
 
-    private boolean isCanEditComment(String username) {
-        CommentEntity latestComment = commentRepository.findLatestCommentOrderByCreatedDate(username);
-        if (latestComment == null) {
-            return true;
-        }
-        return this.isDifferenceMoreThanOneMinutes(latestComment.getModifiedAt());
-    }
-
-    private boolean isDifferenceMoreThanOneMinutes(LocalDateTime localDateTime) {
-        LocalDateTime dateAsLocalDateTime = new Date().toInstant()
+    private boolean isDifferenceMoreThanOneMinute(LocalDateTime localDateTime) {
+        LocalDateTime now = new Date().toInstant()
             .atZone(ZoneId.systemDefault())
             .toLocalDateTime();
 
-        Duration duration = Duration.between(localDateTime, dateAsLocalDateTime);
-
+        Duration duration = Duration.between(localDateTime, now);
         return Math.abs(duration.toMinutes()) > 1;
     }
 }
