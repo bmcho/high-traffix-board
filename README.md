@@ -116,6 +116,7 @@ openssl x509 -req -in kibana.csr \
 
 # ES 컨테이너 안에서 실행
 bin/elasticsearch-reset-password -u kibana_system --url https://localhost:9200 -i
+bin/elasticsearch-reset-password -u kibana_system --url http://localhost:9200 -i
 # 또는
 bin/elasticsearch-reset-password -u kibana_system --url https://elasticsearch:9200 -i
 
