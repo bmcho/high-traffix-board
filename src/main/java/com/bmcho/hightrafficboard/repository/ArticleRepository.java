@@ -13,14 +13,14 @@ import java.util.Optional;
 @Repository
 public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
 
-    @Query("SELECT a FROM ArticleEntity  a WHERE a.board.id = :boardId AND a.isDeleted = false ORDER BY a.createdAt DESC LIMIT 10")
+    @Query("SELECT a FROM ArticleEntity a WHERE a.board.id = :boardId AND a.isDeleted = false ORDER BY a.createdAt DESC LIMIT 10")
     List<ArticleEntity> findTop10ByBoardIdOrderByCreatedAtDesc(@Param("boardId") long boardId);
 
-    @Query("SELECT a FROM ArticleEntity  a WHERE a.board.id = :boardId AND a.id < :articleId AND a.isDeleted = false ORDER BY a.createdAt DESC LIMIT 10")
+    @Query("SELECT a FROM ArticleEntity a WHERE a.board.id = :boardId AND a.id < :articleId AND a.isDeleted = false ORDER BY a.createdAt DESC LIMIT 10")
     List<ArticleEntity> findTop10ByBoardIdAndArticleIdLessThanOrderByCreatedAtDesc(@Param("boardId") Long boardId,
                                                                                      @Param("articleId") Long articleId);
 
-    @Query("SELECT a FROM ArticleEntity  a WHERE a.board.id = :boardId AND a.id > :articleId AND a.isDeleted = false ORDER BY a.createdAt DESC LIMIT 10")
+    @Query("SELECT a FROM ArticleEntity a WHERE a.board.id = :boardId AND a.id > :articleId AND a.isDeleted = false ORDER BY a.createdAt DESC LIMIT 10")
     List<ArticleEntity> findTop10ByBoardIdAndArticleIdGreaterThanOrderByCreatedAtDesc(@Param("boardId") Long boardId,
                                                                                         @Param("articleId") Long articleId);
 

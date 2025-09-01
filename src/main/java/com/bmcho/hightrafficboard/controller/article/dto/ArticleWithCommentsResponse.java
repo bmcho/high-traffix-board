@@ -16,6 +16,7 @@ public class ArticleWithCommentsResponse {
     private final long id;
     private final String title;
     private final String contents;
+    private final long viewCount;
 
     private final UserResponse author;
     private final List<CommentResponse> comments;
@@ -25,6 +26,7 @@ public class ArticleWithCommentsResponse {
             .id(entity.getId())
             .title(entity.getTitle())
             .contents(entity.getContent())
+            .viewCount(entity.getViewCount())
             .author(UserResponse.from(entity.getAuthor()))
             .comments(entity.getComments()
                 .stream().map(CommentResponse::from).toList()

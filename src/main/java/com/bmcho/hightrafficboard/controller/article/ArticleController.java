@@ -7,9 +7,7 @@ import com.bmcho.hightrafficboard.controller.article.dto.WriteArticleRequest;
 import com.bmcho.hightrafficboard.controller.BoardApiResponse;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.service.ArticleService;
-import com.bmcho.hightrafficboard.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

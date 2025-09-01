@@ -8,12 +8,16 @@ import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.entity.audit.BaseEntity;
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
+import com.bmcho.hightrafficboard.event.article.ArticleViewedEvent;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
+import com.bmcho.hightrafficboard.service.BoardService;
+import com.bmcho.hightrafficboard.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +39,7 @@ public class ArticleService {
     private final CommentRepository commentRepository;
     private final BoardService boardService;
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ArticleEntity getArticle(Long articleId) {
         return articleRepository.findById(articleId)
@@ -56,6 +61,9 @@ public class ArticleService {
 
     public CompletableFuture<ArticleEntity> getArticleWithComment(Long boardId, Long articleId) {
         CompletableFuture<ArticleEntity> articleFuture = this.getArticleAsync(boardId, articleId);
+
+        //조회수 증가 이벤트 발행 (비동기)
+        eventPublisher.publishEvent(new ArticleViewedEvent(boardId, articleId));
         CompletableFuture<List<CommentEntity>> commentsFuture = this.getCommentsAsync(articleId);
 
         return CompletableFuture.allOf(articleFuture, commentsFuture)

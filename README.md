@@ -121,3 +121,74 @@ bin/elasticsearch-reset-password -u kibana_system --url http://localhost:9200 -i
 bin/elasticsearch-reset-password -u kibana_system --url https://elasticsearch:9200 -i
 
 ```
+
+### articles index
+```bash
+PUT /articles
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "nori_part_of_speech",
+            "cjk_width",
+            "nori_readingform"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "created_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "created_by": {
+        "type": "keyword"
+      },
+      "modified_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "modified_by": {
+        "type": "keyword"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "nori_analyzer"
+      },
+      "is_deleted": {
+        "type": "boolean"
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "author_id": {
+        "type": "long"
+      },
+      "author_name": {
+        "type": "text",
+        "analyzer": "nori_analyzer"
+      },
+      "board_id": {
+        "type": "long"
+      }
+    }
+  }
+}
+```

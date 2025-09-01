@@ -44,6 +44,9 @@ public class ArticleEntity extends MutableBaseEntity {
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private List<CommentEntity> comments = new ArrayList<>();
 
+    @Column(nullable = false)
+    private Long viewCount = 0L;
+
     public ArticleEntity(UserEntity author, BoardEntity board, String title, String content) {
         this.author = author;
         this.board = board;
