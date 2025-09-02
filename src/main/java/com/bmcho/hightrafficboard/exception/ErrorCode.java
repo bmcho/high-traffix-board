@@ -19,6 +19,7 @@ public enum ErrorCode {
     ARTICLE_DOES_NOT_EXIST("CODE4001", "게시글이 존재하지 않습니다.", HttpStatus.NOT_FOUND), // 404
     ARTICLE_NOT_EDITED_BY_RATE_LIMIT("CODE4002", "요청이 너무 잦아 잠시 후 다시 시도해주세요.", HttpStatus.FORBIDDEN),
     ARTICLE_AUTHOR_DIFFERENT("CODE4003", "작성자가 아닙니다.", HttpStatus.FORBIDDEN), // 429
+    ARTICLE_INDEXING_FAILED("CODE4004", "게시글 색인 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     COMMENT_DOES_NOT_EXIST("CODE5001", "댓글이 존재하지 않습니다.", HttpStatus.NOT_FOUND), // 404
     COMMENT_NOT_EDITED_BY_RATE_LIMIT("CODE5002", "요청이 너무 잦아 잠시 후 다시 시도해주세요.", HttpStatus.FORBIDDEN),

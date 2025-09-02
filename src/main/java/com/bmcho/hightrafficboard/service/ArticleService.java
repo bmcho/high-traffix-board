@@ -12,14 +12,15 @@ import com.bmcho.hightrafficboard.event.article.ArticleViewedEvent;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
-import com.bmcho.hightrafficboard.service.BoardService;
-import com.bmcho.hightrafficboard.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -37,9 +39,13 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
+
     private final BoardService boardService;
     private final UserService userService;
+    private final ElasticSearchService elasticSearchService;
+
     private final ApplicationEventPublisher eventPublisher;
+    private final ObjectMapper objectMapper;
 
     public ArticleEntity getArticle(Long articleId) {
         return articleRepository.findById(articleId)
@@ -79,7 +85,7 @@ public class ArticleService {
             });
     }
 
-    public List<ArticleEntity> firstGetArticle(Long boardId) {
+    public List<ArticleEntity> firstGetArticles(Long boardId) {
         return articleRepository.findTop10ByBoardIdOrderByCreatedAtDesc(boardId);
     }
 
@@ -106,8 +112,9 @@ public class ArticleService {
             dto.getTitle(),
             dto.getContent()
         );
-
-        return articleRepository.save(article);
+        articleRepository.save(article);
+        this.indexArticle(article);
+        return article;
     }
 
     @Transactional
@@ -133,6 +140,7 @@ public class ArticleService {
         }
 
         articleRepository.save(article);
+        this.indexArticle(article);
         return article;
     }
 
@@ -152,6 +160,7 @@ public class ArticleService {
 
         article.setIsDeleted(true);
         articleRepository.save(article);
+        this.indexArticle(article);
         return true;
     }
 
@@ -178,7 +187,26 @@ public class ArticleService {
             .toLocalDateTime();
 
         Duration duration = Duration.between(localDateTime, dateAsLocalDateTime);
-        return Math.abs(duration.toMinutes()) > 2;
+        return Math.abs(duration.toSeconds()) > 10;
+    }
+
+    public void indexArticle(ArticleEntity article) {
+        try {
+            String articleJson = objectMapper.writeValueAsString(article);
+            elasticSearchService.indexArticleDocument(article.getId().toString(), articleJson).block();
+        } catch (JsonProcessingException e) {
+            log.error("[indexArticle] Error: {}", e.getCause().getMessage());
+            throw new ArticleException.ArticleIndexingException();
+        }
+    }
+
+    public List<ArticleEntity> searchArticles(String keyword) {
+        Mono<List<Long>> articleIds = elasticSearchService.articleSearch(keyword);
+        try {
+            return articleRepository.findAllById(articleIds.toFuture().get());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

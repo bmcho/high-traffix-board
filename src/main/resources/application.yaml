@@ -77,3 +77,9 @@ jwt:
   expire:
     access-token: 1  # 시간 단위
     refresh-token: 12
+
+elastic-search:
+  host: http://localhost:9200
+  user-info:
+    username: elastic
+    password: test1234

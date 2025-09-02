@@ -4,6 +4,9 @@ import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.service.BoardService;
+import com.bmcho.hightrafficboard.service.ElasticSearchService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,9 @@ public class ArticleEventListener {
 
     private final ArticleRepository articleRepository;
     private final BoardService boardService;
+    private final ElasticSearchService elasticSearchService;
+
+    private final ObjectMapper objectMapper;
 
     @Async
     @Transactional
@@ -31,6 +37,7 @@ public class ArticleEventListener {
             .orElseThrow(ArticleException.ArticleDoesNotExistException::new);
 
         article.setViewCount(article.getViewCount() + 1);
+        elasticSearchService.incrementViewCount(article.getId().toString(), article.getViewCount());
         articleRepository.save(article);
     }
 }

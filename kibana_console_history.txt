@@ -1,0 +1,109 @@
+DELETE /articles
+
+PUT /articles
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "nori_part_of_speech",
+            "cjk_width",
+            "nori_readingform"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "created_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "created_by": {
+        "type": "keyword"
+      },
+      "modified_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "modified_by": {
+        "type": "keyword"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "nori_analyzer"
+      },
+      "is_deleted": {
+        "type": "boolean"
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "author_id": {
+        "type": "long"
+      },
+      "author_name": {
+        "type": "text",
+        "analyzer": "nori_analyzer"
+      },
+      "board_id": {
+        "type": "long"
+      }
+    }
+  }
+}
+
+
+GET /_cat/indices
+
+PUT /articles/_settings
+{
+  "index":{
+    "number_of_replicas":0
+  }
+}
+
+POST /articles/_doc/9
+{
+  "id": 9,
+  "created_at": "2025-08-29 18:13:51.696",
+  "created_by": null,
+  "modified_at": "2025-08-29 18:13:51.696",
+  "modified_by": null,
+  "content": "안녕하세요.3",
+  "is_deleted": false,
+  "title": "테스트3",
+  "author_id": 1,
+  "board_id": 1
+}
+
+
+GET articles/_search
+{
+  "query": {
+    "match": {
+            "title": "테스"
+    }
+  }
+}
+
+GET articles/_analyze
+{
+  "analyzer": "nori_analyzer",
+  "text": "자바개발자"
+}

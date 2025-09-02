@@ -26,4 +26,10 @@ public class ArticleException extends BasicException {
         }
     }
 
+    public static class ArticleIndexingException extends ArticleException {
+        public ArticleIndexingException() {
+            super(ErrorCode.ARTICLE_INDEXING_FAILED);
+        }
+    }
+
 }

@@ -29,6 +29,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // elastic search
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    // rabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
     //swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:_'
 

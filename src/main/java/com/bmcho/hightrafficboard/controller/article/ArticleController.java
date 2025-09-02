@@ -40,7 +40,22 @@ public class ArticleController {
         else if (firstId != null)
             articleEntityList = articleService.getNewArticle(boardId, firstId);
         else
-            articleEntityList = articleService.firstGetArticle(boardId);
+            articleEntityList = articleService.firstGetArticles(boardId);
+
+        List<ArticleResponse> response = articleEntityList.stream().map(ArticleResponse::from).toList();
+        return BoardApiResponse.ok(response);
+    }
+
+    @GetMapping("/{boardId}/articles/search")
+    public BoardApiResponse<List<ArticleResponse>> searchArticle(@PathVariable Long boardId,
+                                                                 @RequestParam String keyword) {
+
+        List<ArticleEntity> articleEntityList;
+
+        if (keyword != null)
+            articleEntityList = articleService.searchArticles(keyword);
+        else
+            articleEntityList = articleService.firstGetArticles(boardId);
 
         List<ArticleResponse> response = articleEntityList.stream().map(ArticleResponse::from).toList();
         return BoardApiResponse.ok(response);
