@@ -11,6 +11,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
+      - mysql_data:/var/lib/mysql
       - ./db/mysql/init:/docker-entrypoint-initdb.d
     command:
       --default-authentication-plugin=mysql_native_password
@@ -46,8 +47,8 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./es_data:/usr/share/elasticsearch/data
-      - ./certs:/usr/share/elasticsearch/config/certs:ro
+      - es_data:/usr/share/elasticsearch/data
+#      - ./certs:/usr/share/elasticsearch/config/certs:ro
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -57,7 +58,7 @@ services:
 #      bin/elasticsearch
 #      "
     healthcheck:
-      test: ["CMD-SHELL", "curl -k -u elastic:12341234 http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -k -u elastic:test1234 http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -72,14 +73,19 @@ services:
       - SERVER_NAME=kibana
       - SERVER_HOST=0.0.0.0
       - SERVER_SSL_ENABLED=false
-      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
-      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.crt
-      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca.crt
+#      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
+#      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.crt
+#      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/config/certs/ca.crt
     depends_on:
       elasticsearch:
         condition: service_healthy
     ports:
       - "5601:5601"
-    volumes:
-      - ./certs:/usr/share/kibana/config/certs:ro
+#    volumes:
+#      - ./certs:/usr/share/kibana/config/certs:ro
+
+
+volumes:
+  mysql_data:
+  es_data:
 

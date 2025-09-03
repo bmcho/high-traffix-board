@@ -122,6 +122,12 @@ bin/elasticsearch-reset-password -u kibana_system --url https://elasticsearch:92
 
 ```
 
+### nori 형태소 분석기 설치
+```bash
+bin/elasticsearch-plugin install analysis-nori
+이후 elasticsearch 재부팅
+```
+
 ### articles index
 ```bash
 PUT /articles
@@ -149,14 +155,14 @@ PUT /articles
       },
       "created_at": {
         "type": "date",
-        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+        "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
       },
       "created_by": {
         "type": "keyword"
       },
       "modified_at": {
         "type": "date",
-        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+        "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
       },
       "modified_by": {
         "type": "keyword"

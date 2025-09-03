@@ -68,6 +68,54 @@ PUT /articles
   }
 }
 
+PUT /articles_v2
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "filter": [
+            "lowercase",
+            "nori_part_of_speech",
+            "cjk_width",
+            "nori_readingform"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": { "type": "long" },
+      "created_at": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis" },
+      "created_by": { "type": "keyword" },
+      "modified_at": { "type": "date", "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis" },
+      "modified_by": { "type": "keyword" },
+      "contents": { "type": "text", "analyzer": "nori_analyzer" },
+      "is_deleted": { "type": "boolean" },
+      "title": {
+        "type": "text",
+        "analyzer": "nori_analyzer",
+        "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } }
+      },
+      "author_id": { "type": "long" },
+      "author_name": { "type": "text", "analyzer": "nori_analyzer" },
+      "board_id": { "type": "long" }
+    }
+  }
+}
+
+DELETE /articles
+
+
+POST /_aliases
+{
+  "actions": [
+    { "add": { "index": "articles_v2", "alias": "articles" } }
+  ]
+}
 
 GET /_cat/indices
 
@@ -78,6 +126,7 @@ PUT /articles/_settings
   }
 }
 
+
 POST /articles/_doc/9
 {
   "id": 9,
@@ -85,7 +134,7 @@ POST /articles/_doc/9
   "created_by": null,
   "modified_at": "2025-08-29 18:13:51.696",
   "modified_by": null,
-  "content": "안녕하세요.3",
+  "contents": "안녕하세요.3",
   "is_deleted": false,
   "title": "테스트3",
   "author_id": 1,
@@ -93,11 +142,13 @@ POST /articles/_doc/9
 }
 
 
+GET /articles/_doc/5
+
 GET articles/_search
 {
   "query": {
     "match": {
-            "title": "테스"
+            "contents": "안녕"
     }
   }
 }
@@ -105,5 +156,5 @@ GET articles/_search
 GET articles/_analyze
 {
   "analyzer": "nori_analyzer",
-  "text": "자바개발자"
+  "text": "안녕하세요"
 }

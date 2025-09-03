@@ -12,7 +12,6 @@ import com.bmcho.hightrafficboard.event.article.ArticleViewedEvent;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -113,7 +112,7 @@ public class ArticleService {
             dto.getContent()
         );
         articleRepository.save(article);
-        this.indexArticle(article);
+        elasticSearchService.indexArticleDocument(article);
         return article;
     }
 
@@ -140,7 +139,7 @@ public class ArticleService {
         }
 
         articleRepository.save(article);
-        this.indexArticle(article);
+        elasticSearchService.indexArticleDocument(article);
         return article;
     }
 
@@ -160,7 +159,7 @@ public class ArticleService {
 
         article.setIsDeleted(true);
         articleRepository.save(article);
-        this.indexArticle(article);
+        elasticSearchService.indexArticleDocument(article);
         return true;
     }
 
@@ -188,16 +187,6 @@ public class ArticleService {
 
         Duration duration = Duration.between(localDateTime, dateAsLocalDateTime);
         return Math.abs(duration.toSeconds()) > 10;
-    }
-
-    public void indexArticle(ArticleEntity article) {
-        try {
-            String articleJson = objectMapper.writeValueAsString(article);
-            elasticSearchService.indexArticleDocument(article.getId().toString(), articleJson).block();
-        } catch (JsonProcessingException e) {
-            log.error("[indexArticle] Error: {}", e.getCause().getMessage());
-            throw new ArticleException.ArticleIndexingException();
-        }
     }
 
     public List<ArticleEntity> searchArticles(String keyword) {

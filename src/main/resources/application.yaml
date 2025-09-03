@@ -22,7 +22,7 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
 springdoc:
   swagger-ui:
@@ -75,8 +75,8 @@ jwt:
     HwIDAQAB
     -----END PUBLIC KEY-----
   expire:
-    access-token: 1  # 시간 단위
-    refresh-token: 12
+    access-token: 24  # 시간 단위
+    refresh-token: 24
 
 elastic-search:
   host: http://localhost:9200
