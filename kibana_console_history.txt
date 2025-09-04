@@ -1,3 +1,18 @@
+GET /_cluster/health
+GET /_cat/shards?v=true&h=index,shard,prirep,state,unassigned.reason | grep UNASSIGNED
+
+# 모든 노드가 클러스터에 참여 중인지 확인
+GET /_cat/nodes?v
+
+# 각 노드의 디스크 사용량 확인
+GET /_cat/allocation?v=true&h=node,shards,disk.indices,disk.used,disk.avail,disk.percent
+
+# 샤드 할당 재시도 (필요시)
+POST /_cluster/reroute?retry_failed=true
+
+# 인덱스 확인
+GET /_cat/indices
+
 DELETE /articles
 
 PUT /articles
@@ -23,25 +38,25 @@ PUT /articles
       "id": {
         "type": "long"
       },
-      "created_at": {
+      "createdAt": {
         "type": "date",
         "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
       },
-      "created_by": {
+      "createdBy": {
         "type": "keyword"
       },
-      "modified_at": {
+      "modifiedAt": {
         "type": "date",
         "format": "yyyy-MM-dd HH:mm:ss.SSS||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
       },
-      "modified_by": {
+      "modifiedBy": {
         "type": "keyword"
       },
       "content": {
         "type": "text",
         "analyzer": "nori_analyzer"
       },
-      "is_deleted": {
+      "isDeleted": {
         "type": "boolean"
       },
       "title": {
@@ -54,14 +69,14 @@ PUT /articles
           }
         }
       },
-      "author_id": {
+      "authorId": {
         "type": "long"
       },
-      "author_name": {
+      "authorName": {
         "type": "text",
         "analyzer": "nori_analyzer"
       },
-      "board_id": {
+      "boardId": {
         "type": "long"
       }
     }
@@ -107,7 +122,7 @@ PUT /articles_v2
   }
 }
 
-DELETE /articles
+DELETE /articles_v2
 
 
 POST /_aliases
@@ -117,7 +132,13 @@ POST /_aliases
   ]
 }
 
-GET /_cat/indices
+POST /_aliases
+{
+  "actions": [
+    { "remove": { "index": "articles_v2", "alias": "articles" } }
+  ]
+}
+
 
 PUT /articles/_settings
 {
@@ -142,15 +163,29 @@ POST /articles/_doc/9
 }
 
 
-GET /articles/_doc/5
+GET /articles/_doc/7
 
 GET articles/_search
 {
   "query": {
     "match": {
-            "contents": "안녕"
+            "content": "안녕"
     }
   }
+}
+
+GET articles/_search
+{
+  "_source": false,
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "content": "안녕" }},
+        { "term": { "isDelete": false }}
+      ]
+    }
+  },
+  "size": 10
 }
 
 GET articles/_analyze
