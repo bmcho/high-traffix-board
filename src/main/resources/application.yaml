@@ -24,13 +24,17 @@ spring:
       hibernate:
         format_sql: false
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: method
   api-docs:
     path: /v3/api-docs
-
 
 # 실 서비스가 아니기때문에 그냥.. 프로퍼티에 저장
 jwt:
@@ -83,3 +87,6 @@ elastic-search:
   user-info:
     username: elastic
     password: test1234
+
+
+
