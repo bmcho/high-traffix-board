@@ -36,6 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-db
+docker/logstash/jars
+docker/db
 certs
-es_data
