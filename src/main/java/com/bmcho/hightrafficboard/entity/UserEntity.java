@@ -1,6 +1,8 @@
 package com.bmcho.hightrafficboard.entity;
 
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
+import com.bmcho.hightrafficboard.entity.converter.DeviceListConverter;
+import com.bmcho.hightrafficboard.entity.pojo.Device;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -8,6 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -31,6 +35,10 @@ public class UserEntity extends MutableBaseEntity {
 
     @Column(name = "LAST_LOGIN_AT")
     private LocalDateTime lastLoginAt;
+
+    @Column(columnDefinition = "json")
+    @Convert(converter = DeviceListConverter.class)
+    private List<Device> devicesList = new ArrayList<>();
 
     public UserEntity(String username, String password, String email) {
         this.username = username;

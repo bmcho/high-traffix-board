@@ -1,16 +1,23 @@
 package com.bmcho.hightrafficboard.service;
 
 import com.bmcho.hightrafficboard.config.security.BoardUser;
+import com.bmcho.hightrafficboard.controller.device.dto.WriteDeviceRequest;
 import com.bmcho.hightrafficboard.controller.user.dto.CreateUserRequest;
 import com.bmcho.hightrafficboard.domain.UserDomain;
 import com.bmcho.hightrafficboard.entity.UserEntity;
+import com.bmcho.hightrafficboard.entity.pojo.Device;
 import com.bmcho.hightrafficboard.exception.UserException;
 import com.bmcho.hightrafficboard.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +64,24 @@ public class UserService {
     @Transactional
     public void deleteUser(long id) {
         userRepository.deleteById(id);
+    }
+
+    public List<Device> getDevices() {
+        UserEntity userEntity = getCurrentUser();
+        return userEntity.getDevicesList();
+    }
+
+    @Transactional
+    public Device addDevice(WriteDeviceRequest dto) {
+        UserEntity userEntity = getCurrentUser();
+        Device device = Device.builder()
+            .deviceName(dto.getDeviceName())
+            .token(dto.getToken())
+            .build();
+
+        userEntity.getDevicesList().add(device);
+        userRepository.save(userEntity);
+        return device;
     }
 
 }
