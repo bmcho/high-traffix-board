@@ -24,6 +24,12 @@ spring:
       hibernate:
         format_sql: false
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: board-user
+    password: user1234!
+
   data:
     redis:
       host: localhost
@@ -31,6 +37,7 @@ spring:
 
     mongodb:
       uri: mongodb://localhost:27017/high-traffic-board
+
 
 springdoc:
   swagger-ui:

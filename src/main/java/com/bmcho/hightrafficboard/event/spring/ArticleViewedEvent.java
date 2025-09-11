@@ -1,4 +1,4 @@
-package com.bmcho.hightrafficboard.event.article;
+package com.bmcho.hightrafficboard.event.spring;
 
 public record ArticleViewedEvent(Long boardId, Long articleId) {
 }

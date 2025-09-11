@@ -1,4 +1,4 @@
-package com.bmcho.hightrafficboard.event.article;
+package com.bmcho.hightrafficboard.event.spring;
 
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.exception.ArticleException;

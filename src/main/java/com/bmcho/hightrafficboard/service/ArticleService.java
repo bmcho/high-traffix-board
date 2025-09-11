@@ -8,10 +8,13 @@ import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.entity.audit.BaseEntity;
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
-import com.bmcho.hightrafficboard.event.article.ArticleViewedEvent;
+import com.bmcho.hightrafficboard.event.rabbitmq.EventMessage;
+import com.bmcho.hightrafficboard.event.rabbitmq.WriteArticle;
+import com.bmcho.hightrafficboard.event.spring.ArticleViewedEvent;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
+import com.bmcho.hightrafficboard.service.rabbitmq.RabbitMQSender;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -44,6 +48,7 @@ public class ArticleService {
     private final ElasticSearchService elasticSearchService;
 
     private final ApplicationEventPublisher eventPublisher;
+    private final RabbitMQSender rabbitMQSender;
     private final ObjectMapper objectMapper;
 
     public ArticleEntity getArticle(Long articleId) {
@@ -113,6 +118,8 @@ public class ArticleService {
         );
         articleRepository.save(article);
         elasticSearchService.indexArticleDocument(article);
+        WriteArticle writeArticle = new WriteArticle(article.getId(), author.getId());
+        rabbitMQSender.send(writeArticle);
         return article;
     }
 
