@@ -6,9 +6,11 @@ import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.entity.audit.BaseEntity;
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
+import com.bmcho.hightrafficboard.event.rabbitmq.WriteComment;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.exception.CommentException;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
+import com.bmcho.hightrafficboard.service.rabbitmq.RabbitMQSender;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class CommentService {
     private final BoardService boardService;
     private final UserService userService;
 
+    private final RabbitMQSender rabbitMQSender;
+
     public CommentEntity getComment(Long commentId) {
         return commentRepository.findById(commentId)
             .filter(c -> !c.getIsDeleted())
@@ -48,7 +52,10 @@ public class CommentService {
         }
 
         CommentEntity comment = new CommentEntity(dto.getContent(), author, article);
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
+        WriteComment writeComment = new WriteComment(comment.getId(), author.getId());
+        rabbitMQSender.send(writeComment);
+        return comment;
     }
 
     @Transactional
@@ -114,7 +121,8 @@ public class CommentService {
             .atZone(ZoneId.systemDefault())
             .toLocalDateTime();
 
-        Duration duration = Duration.between(localDateTime, now);
-        return Math.abs(duration.toMinutes()) > 1;
+        return true;
+//        Duration duration = Duration.between(localDateTime, now);
+//        return Math.abs(duration.toMinutes()) > 0;
     }
 }

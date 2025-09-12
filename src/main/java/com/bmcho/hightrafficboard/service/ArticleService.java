@@ -8,7 +8,6 @@ import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.entity.audit.BaseEntity;
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
-import com.bmcho.hightrafficboard.event.rabbitmq.EventMessage;
 import com.bmcho.hightrafficboard.event.rabbitmq.WriteArticle;
 import com.bmcho.hightrafficboard.event.spring.ArticleViewedEvent;
 import com.bmcho.hightrafficboard.exception.ArticleException;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -49,7 +47,6 @@ public class ArticleService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final RabbitMQSender rabbitMQSender;
-    private final ObjectMapper objectMapper;
 
     public ArticleEntity getArticle(Long articleId) {
         return articleRepository.findById(articleId)
