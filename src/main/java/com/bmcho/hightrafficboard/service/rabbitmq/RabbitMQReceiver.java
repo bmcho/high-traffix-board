@@ -5,18 +5,17 @@ import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.event.rabbitmq.EventMessage;
 import com.bmcho.hightrafficboard.event.rabbitmq.SendCommentNotification;
+import com.bmcho.hightrafficboard.event.rabbitmq.WriteArticle;
 import com.bmcho.hightrafficboard.event.rabbitmq.WriteComment;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
+import com.bmcho.hightrafficboard.service.UserNotificationHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,14 +23,20 @@ public class RabbitMQReceiver {
 
     private final CommentRepository commentRepository;
     private final ArticleRepository articleRepository;
+    private final UserNotificationHistoryService userNotificationHistoryService;
 
     private final RabbitMQSender rabbitMQSender;
 
     @RabbitListener(queues = "board-notification")
     public void receive(EventMessage eventMessage) {
 
-        if (eventMessage instanceof WriteComment) {
-            this.sendCommentNotification((WriteComment) eventMessage);
+        if (eventMessage instanceof WriteComment comment) {
+            this.sendCommentNotification(comment);
+            return;
+        }
+
+        if (eventMessage instanceof WriteArticle article) {
+            this.sendArticleNotification(article);
             return;
         }
 
@@ -68,5 +73,11 @@ public class RabbitMQReceiver {
         for (Long userId : userSet) {
             rabbitMQSender.send(new SendCommentNotification(eventMessage.commentId(), userId));
         }
+    }
+
+    private void sendArticleNotification(WriteArticle eventMessage) {
+        articleRepository.findById(eventMessage.articleId())
+            .ifPresent(entity -> userNotificationHistoryService.insertArticleNotification(entity, entity.getId())
+            );
     }
 }
