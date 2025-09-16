@@ -27,6 +27,16 @@ public class RabbitMQReceiver {
 
     private final RabbitMQSender rabbitMQSender;
 
+    @RabbitListener(queues = "send_notification.email")
+    public void emailReceive(String message) {
+        System.out.println("Received Message(email): " + message);
+    }
+
+    @RabbitListener(queues = "send_notification.sms")
+    public void smsReceive(String message) {
+        System.out.println("Received Message(sms): " + message);
+    }
+
     @RabbitListener(queues = "board-notification")
     public void receive(EventMessage eventMessage) {
 
@@ -39,15 +49,6 @@ public class RabbitMQReceiver {
             this.sendArticleNotification(article);
             return;
         }
-
-        Timer timer = new Timer();
-        // 10초 후에 실행될 작업을 Timer에 등록
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("Received Message: " + eventMessage.type());
-            }
-        }, 5000); // 5초\
     }
 
     private void sendCommentNotification(WriteComment eventMessage) {
