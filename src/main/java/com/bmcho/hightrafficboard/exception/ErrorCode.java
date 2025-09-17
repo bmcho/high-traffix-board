@@ -24,6 +24,8 @@ public enum ErrorCode {
     COMMENT_DOES_NOT_EXIST("CODE5001", "댓글이 존재하지 않습니다.", HttpStatus.NOT_FOUND), // 404
     COMMENT_NOT_EDITED_BY_RATE_LIMIT("CODE5002", "요청이 너무 잦아 잠시 후 다시 시도해주세요.", HttpStatus.FORBIDDEN),
     COMMENT_AUTHOR_DIFFERENT("CODE5003", "작성자가 아닙니다.", HttpStatus.FORBIDDEN), // 429
+
+    NOTICE_DOES_NOT_EXIST("CODE6000", "공지사항이 존재하지 않습니다.", HttpStatus.NOT_FOUND), // 404
     ;
 
 

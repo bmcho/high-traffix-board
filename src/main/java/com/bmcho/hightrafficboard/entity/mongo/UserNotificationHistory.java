@@ -1,6 +1,8 @@
 package com.bmcho.hightrafficboard.entity.mongo;
 
 import jakarta.persistence.Id;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -8,8 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Document(collection = "userNotificationHistory")
-@Getter
-@Setter
+@Data
+@Builder
 public class UserNotificationHistory {
 
     @Id
@@ -19,6 +21,8 @@ public class UserNotificationHistory {
 
     private String content;
 
+    private Long noticeId;
+
     private Long userId;
 
     private Boolean isRead = false;
@@ -27,9 +31,4 @@ public class UserNotificationHistory {
 
     private LocalDateTime updatedDate = LocalDateTime.now();
 
-    public UserNotificationHistory(String title, String content, Long userId) {
-        this.title = title;
-        this.content =content;
-        this.userId = userId;
-    }
 }
