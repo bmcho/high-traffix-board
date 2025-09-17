@@ -2,11 +2,9 @@ package com.bmcho.hightrafficboard.entity;
 
 
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
+import com.bmcho.hightrafficboard.entity.redis.HotArticle;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,4 +53,16 @@ public class ArticleEntity extends MutableBaseEntity {
         this.comments = null;
     }
 
+    public static ArticleEntity fromHotArticle(HotArticle hotArticle) {
+        ArticleEntity entity = new ArticleEntity();
+        entity.setId(hotArticle.getId());
+        entity.setTitle(hotArticle.getTitle());
+        entity.setContent(hotArticle.getContent());
+        entity.setAuthor(hotArticle.getAuthor());
+        entity.setCreatedAt(hotArticle.getCreatedAt());
+        entity.setModifiedAt(hotArticle.getModifiedAt());
+        entity.setViewCount(hotArticle.getViewCount());
+        entity.setIsDeleted(false);
+        return entity;
+    }
 }

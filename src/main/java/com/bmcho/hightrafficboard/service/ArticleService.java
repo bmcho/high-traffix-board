@@ -8,17 +8,20 @@ import com.bmcho.hightrafficboard.entity.CommentEntity;
 import com.bmcho.hightrafficboard.entity.UserEntity;
 import com.bmcho.hightrafficboard.entity.audit.BaseEntity;
 import com.bmcho.hightrafficboard.entity.audit.MutableBaseEntity;
+import com.bmcho.hightrafficboard.entity.redis.HotArticle;
 import com.bmcho.hightrafficboard.event.rabbitmq.WriteArticle;
 import com.bmcho.hightrafficboard.event.spring.ArticleViewedEvent;
 import com.bmcho.hightrafficboard.exception.ArticleException;
 import com.bmcho.hightrafficboard.repository.ArticleRepository;
 import com.bmcho.hightrafficboard.repository.CommentRepository;
 import com.bmcho.hightrafficboard.service.rabbitmq.RabbitMQSender;
+import com.bmcho.hightrafficboard.task.DailyHotArticleTasks;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -47,6 +50,7 @@ public class ArticleService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final RabbitMQSender rabbitMQSender;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public ArticleEntity getArticle(Long articleId) {
         return articleRepository.findById(articleId)
@@ -54,9 +58,26 @@ public class ArticleService {
             .orElseThrow(ArticleException.ArticleDoesNotExistException::new);
     }
 
+    private HotArticle findHotArticle(Long articleId) {
+        String yesterdayKey = DailyHotArticleTasks.YESTERDAY_REDIS_KEY + articleId;
+        String weekKey = DailyHotArticleTasks.WEEK_REDIS_KEY + articleId;
+
+        return Stream.of(yesterdayKey, weekKey)
+            .map(key -> redisTemplate.opsForHash().get(key, articleId))
+            .filter(Objects::nonNull)
+            .map(HotArticle.class::cast)
+            .findFirst()
+            .orElse(null);
+    }
+
     @Async
     protected CompletableFuture<ArticleEntity> getArticleAsync(Long boardId, Long articleId) {
-        boardService.getBoard(boardId);
+        BoardEntity boardEntity = boardService.getBoard(boardId);
+        HotArticle hotArticle = findHotArticle(articleId);
+        if (hotArticle != null) {
+            return CompletableFuture.completedFuture(ArticleEntity.fromHotArticle(hotArticle));
+        }
+
         ArticleEntity article = getArticle(articleId);
         return CompletableFuture.completedFuture(article);
     }

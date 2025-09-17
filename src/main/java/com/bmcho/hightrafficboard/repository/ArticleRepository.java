@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.awt.print.Pageable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,5 +30,8 @@ public interface ArticleRepository extends JpaRepository<ArticleEntity, Long> {
 
     @Query("SELECT a FROM ArticleEntity a JOIN a.author u WHERE u.username = :username ORDER BY a.modifiedAt DESC LIMIT 1")
     Optional<ArticleEntity> findLatestArticleByAuthorUsernameOrderByModifiedAt(@Param("username") String username);
+
+    @Query("SELECT a FROM ArticleEntity a WHERE a.createdAt >= :startDate AND a.createdAt < :endDate ORDER BY a.viewCount DESC LIMIT 1")
+    Optional<ArticleEntity> findHotArticle(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
 }
