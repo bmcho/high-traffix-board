@@ -99,6 +99,7 @@ public class UserController {
     @PostMapping("/history")
     public BoardApiResponse<String> readHistory(@RequestParam String historyId) {
         userNotificationHistoryService.readNotification(historyId);
+        return BoardApiResponse.ok("read");
     }
 
     @GetMapping("/history")
