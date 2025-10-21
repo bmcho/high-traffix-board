@@ -1,6 +1,6 @@
 services:
   mysql:
-    image: mysql:8.0.43-debian
+    image: mysql:8.4 # 애플 실리콘 이슈
     container_name: board-mysql
     restart: always
     environment:
@@ -14,7 +14,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./docker/db/mysql/init:/docker-entrypoint-initdb.d
     command:
-      --default-authentication-plugin=mysql_native_password
+#      --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
     healthcheck:
@@ -25,8 +25,10 @@ services:
 
   elasticsearch:
     build:
-      context: docker
-      dockerfile: docker/Dockerfile.elastic
+      context: ./docker
+      dockerfile: Dockerfile.elastic
+#      context: docker
+#      dockerfile: docker/Dockerfile.elastic
     image: elastic:8.11.2-nori
     container_name: elasticsearch
     environment:

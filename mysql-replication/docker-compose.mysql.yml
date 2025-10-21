@@ -1,6 +1,7 @@
 services:
   mysql-master:
-    image: mysql:8.0.43-debian
+#    image: mysql:8.0.43-debian
+    image: mysql:8.4 # 애플 실리콘 이슈
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -19,7 +20,8 @@ services:
       - mysql-network
 
   mysql-slave:
-    image: mysql:8.0.43-debian
+#    image: mysql:8.0.43-debian
+    image: mysql:8.4 # 애플 실리콘 이슈
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
