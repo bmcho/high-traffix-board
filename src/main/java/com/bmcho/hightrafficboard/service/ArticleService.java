@@ -52,10 +52,13 @@ public class ArticleService {
     private final RabbitMQSender rabbitMQSender;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private final LocalCacheService  localCacheService;
+
     public ArticleEntity getArticle(Long articleId) {
-        return articleRepository.findById(articleId)
-            .filter(a -> !a.getIsDeleted())
-            .orElseThrow(ArticleException.ArticleDoesNotExistException::new);
+        return localCacheService.getArticle(articleId);
+//                articleRepository.findById(articleId)
+//            .filter(a -> !a.getIsDeleted())
+//            .orElseThrow(ArticleException.ArticleDoesNotExistException::new);
     }
 
     private HotArticle findHotArticle(Long articleId) {

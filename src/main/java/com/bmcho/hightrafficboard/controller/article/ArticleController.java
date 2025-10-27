@@ -7,6 +7,7 @@ import com.bmcho.hightrafficboard.controller.article.dto.WriteArticleRequest;
 import com.bmcho.hightrafficboard.controller.BoardApiResponse;
 import com.bmcho.hightrafficboard.entity.ArticleEntity;
 import com.bmcho.hightrafficboard.service.ArticleService;
+import com.bmcho.hightrafficboard.service.LocalCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +20,13 @@ import java.util.concurrent.CompletableFuture;
 public class ArticleController {
 
     private final ArticleService articleService;
+    private final LocalCacheService localCacheService;
 
     @PostMapping("/{boardId}/articles")
     public BoardApiResponse<ArticleResponse> writeArticle(@PathVariable("boardId") Long boardId, @RequestBody WriteArticleRequest writeArticleDto) {
 
         ArticleEntity articleEntity = articleService.writeArticle(boardId, writeArticleDto);
+        localCacheService.updateArticle(articleEntity.getId());
         ArticleResponse response = ArticleResponse.from(articleEntity);
         return BoardApiResponse.ok(response);
     }

@@ -49,9 +49,8 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler(BasicException.class)
-    protected BoardApiResponse<?> handleBadCredentialsException(BasicException exception) {
-        log.error("netflixException: {}", exception.getMessage(), exception);
-        ErrorCode errorCode = exception.getCode();
-        return BoardApiResponse.fail(errorCode.getCode(), errorCode.getMessage());
+    protected BoardApiResponse<?> handleBasicException(BasicException exception) {
+        log.error("Exception: {}", exception.getMsg(), exception);
+        return BoardApiResponse.fail(exception.getCode().getCode(), exception.getMsg());
     }
 }
